@@ -19,7 +19,7 @@ fun HomePage(navController: NavController) {
             contentAlignment = Alignment.Center
         ) {
             Button(
-                onClick = { navController.navigate(NavDestination.SHOP_SCAN.route()) }
+                onClick = { navController.navigate(NavDestination.SHOP.route()) }
             ) {
                 Text("Scan")
             }

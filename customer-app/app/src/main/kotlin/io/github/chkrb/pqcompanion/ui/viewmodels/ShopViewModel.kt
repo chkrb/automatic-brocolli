@@ -7,14 +7,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import io.github.chkrb.pqcompanion.R
 import io.github.chkrb.pqcompanion.data.Catalog
+import io.github.chkrb.pqcompanion.data.OrderRequest
 import io.github.chkrb.pqcompanion.data.RetailerStatus
 import kotlinx.coroutines.launch
 import java.io.InputStream
 
+@OptIn(kotlin.ExperimentalUnsignedTypes::class)
 class ShopViewModel(globalCatalogStream: InputStream) : ViewModel() {
     var catalog: Catalog
     var retailerStatus: RetailerStatus? = null
-    var retailerStatusError: Boolean = false
+    var retailerStatusError = false
+    var orderRequestData = ubyteArrayOf()
 
     init {
         catalog = Catalog.loadFromJsonStream(globalCatalogStream)
@@ -23,6 +26,7 @@ class ShopViewModel(globalCatalogStream: InputStream) : ViewModel() {
     fun reset() {
         retailerStatus = null
         retailerStatusError = false
+        orderRequestData = ubyteArrayOf()
     }
 
     fun processRetailerStatusData(data: UByteArray) {
@@ -35,6 +39,10 @@ class ShopViewModel(globalCatalogStream: InputStream) : ViewModel() {
                 retailerStatusError = true
             }
         }
+    }
+
+    fun processOrderRequest(orderRequest: OrderRequest) {
+        orderRequestData = orderRequest.toUByteArray()
     }
 }
 

@@ -10,6 +10,7 @@ data class RetailerStatusProduct(
     val availableStock: UInt,
     /** The selling price of the product set by the retailer. (since v1) */
     val sellingPrice: UInt,
+
     /** The product reference from the catalog. Derived from UUID fragment. */
     val catalogProduct: CatalogProduct,
 )
@@ -74,7 +75,7 @@ data class RetailerStatus(
                 // Product: Available Stock: 1 to 4 bytes, little-endian, unsigned non-zero integer.
                 var availableStock = 0u
                 for (i in offset..<(offset + headerAvailableStockBytes.toInt())) {
-                    availableStock = availableStock or (data[i].toUInt() shl (8 * (i  - offset)))
+                    availableStock = availableStock or (data[i].toUInt() shl (8 * (i - offset)))
                 }
                 offset += headerAvailableStockBytes.toInt()
 

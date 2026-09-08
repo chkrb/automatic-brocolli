@@ -4,9 +4,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.github.chkrb.pqcompanion.data.RetailerStatusProduct
 import io.github.chkrb.pqcompanion.data.OrderRequest
+import io.github.chkrb.pqcompanion.ui.NavDestination
 import io.github.chkrb.pqcompanion.ui.viewmodels.ShopViewModel
 import io.github.chkrb.pqcompanion.ui.icons.iconAddShoppingCart
 import io.github.chkrb.pqcompanion.ui.icons.iconArrowBack
@@ -39,14 +41,17 @@ fun ShopExplorePage(navController: NavController, vm: ShopViewModel) {
         return
     }
 
-    val orderRequest by remember { mutableStateOf(OrderRequest.loadFromRetailerStatus(vm.retailerStatus!!)) }
+    val orderRequest by remember {
+        mutableStateOf(OrderRequest.loadFromRetailerStatus(vm.retailerStatus!!))
+    }
 
     Scaffold(
+        modifier = Modifier.fillMaxSize(),
         topBar = { TopBar(navController) },
-        bottomBar = { BottomBar(navController) },
+        bottomBar = { BottomBar(navController, vm, orderRequest) },
     ) { scaffoldPadding ->
-        Box(modifier = Modifier.padding(scaffoldPadding)) {
-            LazyColumn {
+        Box(modifier = Modifier.fillMaxSize().padding(scaffoldPadding)) {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(orderRequest.products) { product ->
                     var stockInCart by remember { mutableStateOf(product.orderedStock) }
 
@@ -82,10 +87,23 @@ internal fun TopBar(navController: NavController) {
 }
 
 @Composable
-internal fun BottomBar(navController: NavController) {
+internal fun BottomBar(
+    navController: NavController,
+    vm: ShopViewModel,
+    orderRequest: OrderRequest,
+) {
     BottomAppBar {
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
-            FloatingActionButton(onClick = { }) {
+            FloatingActionButton(
+                onClick = {
+                    if (orderRequest.products.any { it.orderedStock > 0u }) {
+                        vm.processOrderRequest(orderRequest)
+                        navController.navigate(NavDestination.SHOP_CHECKOUT.route()) {
+                            popUpTo(NavDestination.HOME.route())
+                        }
+                    }
+                },
+            ) {
                 Icon(iconShoppingCartCheckout, "Checkout")
             }
         }
@@ -99,7 +117,10 @@ internal fun ProductCard(
     onStockIncrement: () -> Unit,
     onStockDecrement: () -> Unit,
 ) {
-    ElevatedCard(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 2.dp)) {
+    ElevatedCard(
+        modifier =
+            Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 2.dp).height(100.dp),
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(10.dp),
             verticalAlignment = Alignment.CenterVertically,

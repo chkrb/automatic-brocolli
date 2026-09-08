@@ -47,13 +47,16 @@ fun ShopScanPage(navController: NavController, vm: ShopViewModel) {
         Column(modifier = Modifier.padding(scaffoldPadding)) {
             CameraPreview { data ->
                 vm.processRetailerStatusData(data)
-                navController.navigate(NavDestination.SHOP_EXPLORE.route())
+                navController.navigate(NavDestination.SHOP_EXPLORE.route()) {
+                    popUpTo(NavDestination.HOME.route())
+                }
             }
         }
     }
 }
 
 @Composable
+@OptIn(kotlin.ExperimentalUnsignedTypes::class)
 internal fun CameraPreview(onDataReady: (UByteArray) -> Unit) {
     val context = LocalContext.current
 
@@ -89,6 +92,7 @@ internal fun CameraPreview(onDataReady: (UByteArray) -> Unit) {
 }
 
 @Composable
+@OptIn(kotlin.ExperimentalUnsignedTypes::class)
 internal fun CameraPreviewView(
     context: Context = LocalContext.current,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,

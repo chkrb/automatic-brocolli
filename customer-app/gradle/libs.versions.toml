@@ -6,6 +6,7 @@ lib-androidx-glance = "1.1.1"
 lib-androidx-navigation-compose = "2.9.8"
 lib-mlkit-barcode = "17.3.0"
 lib-kotlin-serialization-json = "1.11.0"
+lib-zxing = "3.5.4"
 plug-android-application = "9.2.1"
 plug-kotlin-compose = "2.4.0"
 plug-kotlin-serialization = "2.4.0"
@@ -23,6 +24,7 @@ androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graph
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "lib-androidx-navigation-compose" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "lib-kotlin-serialization-json" }
 mlkit-barcode = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "lib-mlkit-barcode" }
+zxing = { group = "com.google.zxing", name = "core", version.ref = "lib-zxing" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "plug-android-application" }

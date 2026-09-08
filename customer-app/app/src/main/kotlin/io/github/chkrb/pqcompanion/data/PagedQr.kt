@@ -1,6 +1,9 @@
 package io.github.chkrb.pqcompanion.data
 
 import android.util.Log
+import kotlin.math.ceil
+import kotlin.math.log2
+import kotlin.math.max
 
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)
 class PagedQrData {
@@ -73,5 +76,51 @@ class PagedQrData {
         }
 
         return null
+    }
+
+    fun getDataPagesFromData(data: UByteArray, pageSize: Int): List<UByteArray> {
+        // Data is divided, and a header is added to it.
+        // - The first byte stores the meta info:
+        //   - bit 7 indicates that the page is the final page in sequence.
+        //   - bits 6:3 are reserved.
+        //   - bits 2:0 indicates the number of bytes required to store the page
+        //     number, minus 1.
+        // - The next byte(s) store the variable-width page number.
+        
+        var page = 0uL
+        var dataOffset = 0
+
+        assert(pageSize > 5) // Header (1 byte) + Page Number (max 4 bytes)
+
+        while (dataOffset < data.size) {
+            val headerMetaFinalPage = dataOffset + pageSize >= data.size
+            val headerMetaPageNumberBytes = max(ceil(log2(page.toDouble() + 1.0) / 8).toUInt(), 1u)
+            val headerMeta =
+                ((if (headerMetaFinalPage) 0x80u else 0x00u) or (headerMetaPageNumberBytes - 1u))
+                    .toUByte()
+
+            var headerPageNumber = ubyteArrayOf()
+            for (i in 0..<headerMetaPageNumberBytes.toInt()) {
+                headerPageNumber += ((page shr (8 * i)) and 0xffu).toUByte()
+            }
+
+            val header = ubyteArrayOf(headerMeta) + headerPageNumber
+
+            dataPages[page] =
+                header +
+                data.filterIndexed {
+                    index, byte -> index in dataOffset..<(dataOffset + pageSize - header.size)
+                }.toUByteArray()
+
+            val hex = dataPages[page]!!.joinToString(" ") {
+                "%02X".format(it.toInt() and 0xFF)
+            }
+            println("retailerstatus: $hex")
+
+            page++
+            dataOffset += pageSize
+        }
+
+        return dataPages.values.toList()
     }
 }
