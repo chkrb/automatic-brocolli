@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
 
+import cv2
 import json
 import numpy as np
 import os
 import qrcode
 import sys
+import threading
+import time
 import wx
+import zxingcpp
 
 os.chdir(os.path.dirname(__file__))
 
 from data.catalog import Catalog
 from presentation.pageddata import PagedData
 from data.inventory import Inventory
+from data.order import Order
 from data.product import Product
 
 class Window(wx.Frame):
@@ -19,6 +24,7 @@ class Window(wx.Frame):
         super().__init__(*args, **kwargs)
         self.catalog = Catalog(json.load(open("spec/products.json")))
         self.inventory = Inventory(self.catalog)
+        self.order = Order(self.catalog)
         self.paged_data_retailer_status = PagedData()
         self.paged_data_order_request = PagedData()
 
@@ -37,7 +43,40 @@ class Window(wx.Frame):
             qr_image = qr_image.resize((qr_image.width // 2, qr_image.height // 2))
             self.qr_pages.append((qr_image.width, qr_image.height, qr_image.tobytes()))
 
+        self.video_feed = cv2.VideoCapture(0)
+        threading.Thread(target=self.scan_qr_code_thread, daemon=True).start()
+
         self.init_ui()
+
+    def scan_qr_code_thread(self):
+        # Inversion is done so as to compensate for QR codes which are drawn in
+        # dark mode.
+        inverted_qr_code = False
+
+        while True:
+            time.sleep(0.1)
+            if self.order.ordered_stock:  # Order pending in system
+                continue
+
+            image = self.video_feed.read()[1]
+            if image is None:
+                raise RuntimeError("no camera feed available")
+
+            if inverted_qr_code:
+                image_inverted = np.uint8(1.0) - image
+                decoded = zxingcpp.read_barcodes(image_inverted)
+            else:
+                decoded = zxingcpp.read_barcodes(image)
+
+            if not decoded:
+                inverted_qr_code = not inverted_qr_code
+                continue
+
+            data = self.paged_data_order_request.add_data_page_and_construct(
+                decoded[0].bytes
+            )
+            if data is not None:
+                self.order.from_order_request(data)
 
     def init_ui(self):
         self.root = wx.Panel(self)
