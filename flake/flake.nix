@@ -49,7 +49,11 @@
 
               packages = [
                 git
+                just
+                nodejs
+                postgresql
                 typst
+                vitejs
 
                 (callPackage ./packages/kotlin-lsp.nix { })
 
@@ -57,6 +61,7 @@
                   py: with py; [
                     opencv4
                     qrcode
+                    virtualenv
                     wxpython
                     zxing-cpp
                 ]))
