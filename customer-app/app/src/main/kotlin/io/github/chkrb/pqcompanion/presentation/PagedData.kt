@@ -24,7 +24,7 @@ class PagedData {
     private var lastDataPageNumber = ULong.MAX_VALUE
 
     fun addDataPageAndConstruct(page: UByteArray): UByteArray? {
-        // Data is divided, and a header is added to it.
+        // Data is divided into one or more pages, and a header is added to each page.
         // - The first byte stores the meta info:
         //   - bit 7 indicates that the page is the final page in sequence.
         //   - bits 6:3 are reserved.
@@ -79,7 +79,7 @@ class PagedData {
     }
 
     fun getDataPagesFromData(data: UByteArray, pageSize: Int): List<UByteArray> {
-        // Data is divided, and a header is added to it.
+        // Data is divided into one or more pages, and a header is added to each page.
         // - The first byte stores the meta info:
         //   - bit 7 indicates that the page is the final page in sequence.
         //   - bits 6:3 are reserved.
@@ -93,32 +93,31 @@ class PagedData {
         assert(pageSize > 5) // Header (1 byte) + Page Number (max 4 bytes)
 
         while (dataOffset < data.size) {
-            val headerMetaFinalPage = dataOffset + pageSize >= data.size
+            var headerMeta = 0u
+
             val headerMetaPageNumberBytes = max(ceil(log2(page.toDouble() + 1.0) / 8).toUInt(), 1u)
-            val headerMeta =
-                ((if (headerMetaFinalPage) 0x80u else 0x00u) or (headerMetaPageNumberBytes - 1u))
-                    .toUByte()
+            assert(headerMetaPageNumberBytes <= 8u)
+            headerMeta = headerMeta or (headerMetaPageNumberBytes - 1u)
 
             var headerPageNumber = ubyteArrayOf()
             for (i in 0..<headerMetaPageNumberBytes.toInt()) {
                 headerPageNumber += ((page shr (8 * i)) and 0xffu).toUByte()
             }
 
-            val header = ubyteArrayOf(headerMeta) + headerPageNumber
+            val headerLength = 1 + headerMetaPageNumberBytes.toInt()
+            val dataLength = pageSize - headerLength
 
-            dataPages[page] =
-                header +
+            val pageData =
                 data.filterIndexed {
-                    index, byte -> index in dataOffset..<(dataOffset + pageSize - header.size)
+                    index, byte -> index in dataOffset..<(dataOffset + dataLength)
                 }.toUByteArray()
 
-            val hex = dataPages[page]!!.joinToString(" ") {
-                "%02X".format(it.toInt() and 0xFF)
+            dataOffset += dataLength
+            if (dataOffset >= data.size) {
+                headerMeta = headerMeta or (1u shl 7)
             }
-            println("retailerstatus: $hex")
 
-            page++
-            dataOffset += pageSize
+            dataPages[page++] = ubyteArrayOf(headerMeta.toUByte()) + headerPageNumber + pageData
         }
 
         return dataPages.values.toList()

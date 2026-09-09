@@ -22,12 +22,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.EncodeHintType
-import com.google.zxing.MultiFormatWriter
-import com.google.zxing.WriterException
-import com.google.zxing.common.BitMatrix
-import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
+import io.nayuki.qrcodegen.QrCode
+import io.nayuki.qrcodegen.QrSegment
 import io.github.chkrb.pqcompanion.presentation.PagedData
 import io.github.chkrb.pqcompanion.ui.viewmodels.ShopViewModel
 import java.nio.charset.StandardCharsets
@@ -42,32 +38,13 @@ fun dataToQrBitmap(
     highColorArgb: Int,
     version: Int,
 ): ImageBitmap {
-    // Nabbed from https://dev.to/devniiaddy/qr-code-with-jetpack-compose-47e
-    val encodeHints = mutableMapOf(
-        EncodeHintType.QR_VERSION to version,
-        EncodeHintType.CHARACTER_SET to "ISO-8859-1",
-        EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.L,
-        EncodeHintType.MARGIN to 0,
-    )
+    val segment = QrSegment.makeBytes(content.toByteArray())
+    val qr = QrCode.encodeSegments(listOf(segment), QrCode.Ecc.LOW, version, version, -1, true)
+    val bitmap = Bitmap.createBitmap(qr.size, qr.size, Bitmap.Config.ARGB_8888)
 
-    val bitmapMatrix =
-        MultiFormatWriter().encode(
-            String(content.toByteArray(), StandardCharsets.ISO_8859_1),
-            BarcodeFormat.QR_CODE,
-            199,
-            199,
-            encodeHints,
-        )
-
-    val bitmap = Bitmap.createBitmap(
-        bitmapMatrix.width,
-        bitmapMatrix.height,
-        Bitmap.Config.ARGB_8888,
-    )
-
-    for (x in 0 until bitmapMatrix.width) {
-        for (y in 0 until bitmapMatrix.height) {
-            val high = bitmapMatrix?.get(x, y) ?: false
+    for (x in 0 until bitmap.width) {
+        for (y in 0 until bitmap.height) {
+            val high = qr.getModule(x, y)
             bitmap.setPixel(x, y, if (high) highColorArgb else lowColorArgb)
         }
     }
@@ -87,7 +64,7 @@ fun ShopCheckoutPage(navController: NavController, vm: ShopViewModel) {
     val dataPageBitmaps by remember {
         // Reference: https://www.qrcode.com/en/about/version.html
         val qrVersionBytes =
-            arrayOf(17, 32, 53, 78, 106, 134, 154, 192, 230, 271, 321, 367, 425, 458, 520, 586, 644, 718, 792, 858)
+            arrayOf(17) //, 32, 53, 78, 106, 134, 154, 192, 230, 271, 321, 367, 425, 458, 520, 586, 644, 718, 792, 858)
         // For ZXing, max bytes is one less than standard. WHY???
         var zxingQrVersion = 1
         var zxingQrBytes = qrVersionBytes[0]
