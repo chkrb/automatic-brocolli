@@ -55,8 +55,10 @@
 
                 (python3.withPackages (
                   py: with py; [
+                    opencv4
                     qrcode
                     wxpython
+                    zxing-cpp
                 ]))
               ];
             }
