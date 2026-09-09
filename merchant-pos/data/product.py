@@ -88,4 +88,4 @@ class Product:
         assert header <= 0xff, "product data header must be precisely 1 byte"
         header_byte = header.to_bytes(1)
 
-        return header_byte + uuid_bytes_le + selling_price_bytes_le + stock_bytes_le
+        return header_byte + uuid_bytes_le + stock_bytes_le + selling_price_bytes_le
