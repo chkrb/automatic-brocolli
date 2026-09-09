@@ -1,7 +1,6 @@
-import random
 from typing import Any
 
-from product import Product
+from .product import Product
 
 class Catalog:
     def __init__(self, init: dict[str, Any]):

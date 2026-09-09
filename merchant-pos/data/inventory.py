@@ -1,8 +1,8 @@
 from functools import reduce
 from typing import Any
 
-from catalog import Catalog
-from product import Product
+from .catalog import Catalog
+from .product import Product
 
 class Inventory:
     def __init__(self, catalog: Catalog):
@@ -15,11 +15,11 @@ class Inventory:
         self.selling_prices = dict(zip(uuids, random.sample(range(10, 10000), len(uuids))))
         self.quantities = dict(zip(uuids, random.sample(range(10, 10000), len(uuids))))
 
-    def to_data(self, spec_version: int = 1) -> bytes:
+    def to_retailer_status(self, spec_version: int = 1) -> bytes:
         products_data_array = reduce(
             lambda accum, x: accum + x,
             map(
-                lambda x: x.to_data(
+                lambda x: x.to_retailer_status_product(
                     self.catalog.products,
                     self.selling_prices[x.uuid],
                     self.quantities[x.uuid],

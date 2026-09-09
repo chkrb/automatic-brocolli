@@ -14,20 +14,22 @@ class Product:
         assert self.added > 0  # non-negative version code
         assert self.mrp >= 0  # non-negative price or not applicable (0)
 
-    def to_data(
+    def to_retailer_status_product(
         self,
         products: Iterable[Self],
         selling_price: int,
         stock: int,
-        spec_version: int = 1,
+        spec_version: int,
     ) -> bytes:
         match spec_version:
             case 1:
-                return self.to_data_v1(products, selling_price, stock)
+                return self.to_retailer_status_product_v1(
+                    products, selling_price, stock
+                )
             case _:
                 raise ValueError(f"incorrect or unknown specification {spec_version}")
 
-    def to_data_v1(
+    def to_retailer_status_product_v1(
         self,
         products: Iterable[Self],
         selling_price: int,
