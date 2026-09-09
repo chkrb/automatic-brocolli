@@ -28,7 +28,7 @@ import com.google.zxing.MultiFormatWriter
 import com.google.zxing.WriterException
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
-import io.github.chkrb.pqcompanion.data.PagedQrData
+import io.github.chkrb.pqcompanion.presentation.PagedData
 import io.github.chkrb.pqcompanion.ui.viewmodels.ShopViewModel
 import java.nio.charset.StandardCharsets
 import kotlinx.coroutines.Dispatchers
@@ -68,11 +68,7 @@ fun dataToQrBitmap(
     for (x in 0 until bitmapMatrix.width) {
         for (y in 0 until bitmapMatrix.height) {
             val high = bitmapMatrix?.get(x, y) ?: false
-            bitmap.setPixel(
-                x,
-                y,
-                if (high) highColorArgb else lowColorArgb,
-            )
+            bitmap.setPixel(x, y, if (high) highColorArgb else lowColorArgb)
         }
     }
 
@@ -110,8 +106,7 @@ fun ShopCheckoutPage(navController: NavController, vm: ShopViewModel) {
         }
 
         mutableStateOf(
-            PagedQrData()
-                .getDataPagesFromData(vm.orderRequestData, zxingQrBytes)
+            PagedData().getDataPagesFromData(vm.orderRequestData, zxingQrBytes)
                 .map {
                     dataToQrBitmap(
                         it,

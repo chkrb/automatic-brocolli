@@ -31,13 +31,14 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
-import io.github.chkrb.pqcompanion.data.PagedQrData
+import io.github.chkrb.pqcompanion.presentation.PagedData
 import io.github.chkrb.pqcompanion.data.RetailerStatus
 import io.github.chkrb.pqcompanion.ui.NavDestination
 import io.github.chkrb.pqcompanion.ui.viewmodels.ShopViewModel
 import java.util.concurrent.Executors
 
 @Composable
+@OptIn(kotlin.ExperimentalUnsignedTypes::class)
 fun ShopScanPage(navController: NavController, vm: ShopViewModel) {
     LaunchedEffect(Unit) {
         vm.reset()
@@ -99,8 +100,8 @@ internal fun CameraPreviewView(
     modifier: Modifier = Modifier,
     onDataReady: (UByteArray) -> Unit,
 ) {
-    var pagedQrData by remember { mutableStateOf(PagedQrData()) }
-    var pagedQrDataAssembled by remember { mutableStateOf(false) }
+    var pagedData by remember { mutableStateOf(PagedData()) }
+    var pagedDataAssembled by remember { mutableStateOf(false) }
 
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
     val barcodeScanner = remember {
@@ -154,16 +155,16 @@ internal fun CameraPreviewView(
 
                         barcodeScanner.process(image)
                             .addOnSuccessListener { barcodes ->
-                                if (!pagedQrDataAssembled) {
+                                if (!pagedDataAssembled) {
                                     val qrcode =
                                         barcodes.firstOrNull { it.format == Barcode.FORMAT_QR_CODE }
                                     val value = qrcode?.rawBytes?.toUByteArray()
 
                                     if (!value.isNullOrEmpty()) {
-                                        val data = pagedQrData.addDataPageAndConstruct(value)
+                                        val data = pagedData.addDataPageAndConstruct(value)
 
                                         if (data != null) {
-                                            pagedQrDataAssembled = true
+                                            pagedDataAssembled = true
                                             onDataReady(data)
                                         }
                                     }

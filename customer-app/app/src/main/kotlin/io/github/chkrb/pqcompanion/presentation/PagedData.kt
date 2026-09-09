@@ -1,4 +1,4 @@
-package io.github.chkrb.pqcompanion.data
+package io.github.chkrb.pqcompanion.presentation
 
 import android.util.Log
 import kotlin.math.ceil
@@ -6,7 +6,7 @@ import kotlin.math.log2
 import kotlin.math.max
 
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)
-class PagedQrData {
+class PagedData {
     // WARN: `dataPages` has a method `.size()` which reports how many elements
     // are in the map. However, the return type is Int. Therefore the
     // implementation cannot use this method to check how many elements are in
