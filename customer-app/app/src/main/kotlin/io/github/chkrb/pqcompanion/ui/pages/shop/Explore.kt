@@ -122,14 +122,20 @@ internal fun ProductCard(
             Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 2.dp).height(100.dp),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(10.dp),
+            modifier = Modifier.fillMaxSize().padding(10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                modifier = Modifier.weight(1f),
-                text = product.catalogProduct.name, maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = product.catalogProduct.name, maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                Text(
+                    text = "₹ ${product.sellingPrice}.00",
+                    style = MaterialTheme.typography.labelLarge,
+                )
+            }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
