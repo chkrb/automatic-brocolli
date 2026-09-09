@@ -79,10 +79,6 @@ fun dataToQrBitmap(
     return bitmap.asImageBitmap()
 }
 
-// Reference: https://www.qrcode.com/en/about/version.html
-const val QR_VERSION = 10
-const val QR_MAX_BYTES = 270 // XXX: one less than what spec says. WHY???
-
 @Composable
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)
 fun ShopCheckoutPage(navController: NavController, vm: ShopViewModel) {
@@ -93,15 +89,35 @@ fun ShopCheckoutPage(navController: NavController, vm: ShopViewModel) {
 
     var dataPageIndex by remember { mutableStateOf(0) }
     val dataPageBitmaps by remember {
+        // Reference: https://www.qrcode.com/en/about/version.html
+        val qrVersionBytes =
+            arrayOf(17, 32, 53, 78, 106, 134, 154, 192, 230, 271, 321, 367, 425, 458, 520, 586, 644, 718, 792, 858)
+        // For ZXing, max bytes is one less than standard. WHY???
+        var zxingQrVersion = 1
+        var zxingQrBytes = qrVersionBytes[0]
+
+        var lo = 0
+        var hi = qrVersionBytes.size - 1
+
+        while (lo < hi) {
+            val mid = lo + (hi - lo) / 2
+            zxingQrVersion = mid + 1
+            zxingQrBytes = qrVersionBytes[mid] - 1
+
+            if (zxingQrBytes == vm.orderRequestData.size) break
+            else if (zxingQrBytes < vm.orderRequestData.size) lo = mid + 1
+            else hi = mid - 1
+        }
+
         mutableStateOf(
             PagedQrData()
-                .getDataPagesFromData(vm.orderRequestData, QR_MAX_BYTES)
+                .getDataPagesFromData(vm.orderRequestData, zxingQrBytes)
                 .map {
                     dataToQrBitmap(
                         it,
                         qrLowColorArgb,
                         qrHighColorArgb,
-                        QR_VERSION,
+                        zxingQrVersion,
                     )
                 }
         )
