@@ -37,7 +37,10 @@ for values in csv_reader:
         "unit": "",
     })
 
-json.dump(
-    {"version": PRODUCT_VERSION, "products": products},
-    open("./products.json", "w"),
-)
+
+for target in [
+    "./products.json",
+    "../customer-app/app/src/main/res/raw/products.json",
+    "../merchant-pos/spec/products.json",
+]:
+    json.dump({"version": PRODUCT_VERSION, "products": products}, open(target, "w"))
