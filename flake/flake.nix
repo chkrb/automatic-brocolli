@@ -56,8 +56,9 @@
                 (python3.withPackages (
                   py: with py; [
                     opencv4
+                    pillow
+                    pyside6
                     qrcode
-                    wxpython
                     zxing-cpp
                 ]))
               ];

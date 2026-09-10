@@ -2,20 +2,17 @@ from functools import reduce
 from typing import Any
 
 from .catalog import Catalog
+from .inventory import Inventory
 from .product import Product
 
 class Order:
     def __init__(self, catalog: Catalog):
         self.catalog = catalog
 
-        self.ordered_stock: dict[bytes, int] = {}
-
-    def clear(self):
-        self.ordered_stock.clear()
+        self.pending = False
+        self.ordered_stock: dict[Product, int] = {}
 
     def from_order_request(self, data: bytes, spec_version: int = 1):
-        uuids = list(map(lambda x: x.uuid, self.catalog.products))
-
         data_offset = 0
 
         while data_offset < len(data):
@@ -35,10 +32,18 @@ class Order:
             )
             data_offset += header_ordered_stock_bytes
 
-            for uuid in uuids:
+            for product in self.catalog.products:
                 for i in range(len(uuid_fragment)):
-                    if uuid[i] ^ uuid_fragment[i]:
+                    if product.uuid[i] ^ uuid_fragment[i]:
                         break
                 else:
-                    self.ordered_stock[uuid] = ordered_stock
+                    self.ordered_stock[product] = ordered_stock
                     break
+
+        self.pending = True
+
+    def execute(self):
+        # XXX: database and transaction voodoo goes here
+
+        self.pending = False
+        self.ordered_stock.clear()
