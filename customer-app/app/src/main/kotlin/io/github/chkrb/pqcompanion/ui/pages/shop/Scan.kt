@@ -62,7 +62,7 @@ import java.util.concurrent.Executors
 fun ShopScanPage(
     navController: NavController,
     vm: ShopViewModel,
-    storeName: String = "StoreName"
+    storeName: String = "POSqueue"
 ) {
     LaunchedEffect(Unit) {
         vm.reset()
