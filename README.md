@@ -1,5 +1,17 @@
 # Smart India Hackathon 2026 – Monorepo
 
+## Components
+
+- `catalog`: Generator of the common global catalog with all products.
+- `customer-app`: Android application used by the customer, to interact with
+the merchant's system and place orders.
+- `doc`: Attempt at documenting the system (behavior, data, etc.) as much as
+possible.
+- `merchant-pos`: The UI software run by the POS terminals of the merchants.
+
+It is recommended to get started with the [documentation](./doc/README.md) to
+get an idea of what to expect from each compoment.
+
 ## Problem
 
 ### Statement
@@ -13,7 +25,7 @@ efficiency while maintaining privacy and minimizing cloud dependency.
 ### Background
 
 India's retail sector includes millions of neighborhood stores,
-supermarkets,pharmacies, and large-format retail outlets that serve high
+supermarkets, pharmacies, and large-format retail outlets that serve high
 customer volumes every day. Retailers face challenges such as inventory
 shrinkage, stock-outs, long billing queues, inefficient shelf replenishment,
 and limited visibility into shopper behavior. Many stores, especially in Tier-2
@@ -22,7 +34,7 @@ require solutions that can function reliably without continuous cloud access.
 
 Recent advances in edge AI allow cameras and sensors to perform real-time
 analytics directly on local devices, enabling faster decisions, improved
-privacy,reduced bandwidth consumption, and uninterrupted operation even during
+privacy, reduced bandwidth consumption, and uninterrupted operation even during
 connectivity outages. Hybrid and edge AI approaches are increasingly being
 adopted for real-time monitoring and decision support across multiple
 industries.
@@ -35,7 +47,7 @@ should analyze shopper movement, inventory levels, and checkout queues without
 requiring constant cloud processing.The solution should automatically identify
 customer traffic patterns, measure dwell time in different store sections,
 detect out-of-stock products, monitor shelf compliance, and predict queue
-congestion before it impacts customer experience.AI inference should happen
+congestion before it impacts customer experience. AI inference should happen
 locally on the edge devices to enable low-latency decisions while preserving
 customer privacy and minimizing network dependency.The system should convert
 video streams into actionable business insights that help retailers improve
@@ -48,48 +60,41 @@ intelligence while reducing dependence on cloud connectivity.
 The proposed solution should implement some or all of the following:
 
 1. Shopper Analytics
-
-- Detect and count customers entering and exiting the store.
-- Analyze footfall trends by time, day, and store zone.
-- Measure shopper dwell time near products and promotional displays.
-- Generate heatmaps showing customer movement patterns.
+    - Detect and count customers entering and exiting the store.
+    - Analyze footfall trends by time, day, and store zone.
+    - Measure shopper dwell time near products and promotional displays.
+    - Generate heatmaps showing customer movement patterns.
 
 2. Inventory Monitoring
-
-- Detect low-stock and out-of-stock situations using shelf-facing cameras.
-- Monitor planogram compliance and product placement.
-- Alert store staff when replenishment is required.
-- Track merchandise availability in real time.
+    - Detect low-stock and out-of-stock situations using shelf-facing cameras.
+    - Monitor planogram compliance and product placement.
+    - Alert store staff when replenishment is required.
+    - Track merchandise availability in real time.
 
 3. Queue Intelligence
-
-- Monitor checkout counters and queue lengths.
-- Predict congestion before queues become excessive.
-- Recommend opening additional billing counters.
-- Measure average waiting and service times.
+    - Monitor checkout counters and queue lengths.
+    - Predict congestion before queues become excessive.
+    - Recommend opening additional billing counters.
+    - Measure average waiting and service times.
 
 4. Edge AI Processing
-
-- Run all computer vision models locally on edge hardware.
-- Operate even during internet disruptions.
-- Reduce cloud bandwidth and operational costs.
-- Support rapid, low-latency decision-making.
+    - Run all computer vision models locally on edge hardware.
+    - Operate even during internet disruptions.
+    - Reduce cloud bandwidth and operational costs.
+    - Support rapid, low-latency decision-making.
 
 5. Privacy-Aware Analytics
-
-- Use anonymous people detection and tracking.
-- Avoid storing personally identifiable information.
-- Process sensitive data locally where possible.
+    - Use anonymous people detection and tracking.
+    - Avoid storing personally identifiable information.
+    - Process sensitive data locally where possible.
 
 6. Store Operations Dashboard
-
-- Real-time alerts for stock shortages and queue build-up.
-- Daily and weekly analytics reports.
-- KPI visualization including footfall, conversion indicators, inventory
-status, and staff efficiency.
+    - Real-time alerts for stock shortages and queue build-up.
+    - Daily and weekly analytics reports.
+    - KPI visualization including footfall, conversion indicators, inventory
+    status, and staff efficiency.
 
 7. Scalable Deployment
-
-- Support deployment across small stores, supermarkets, and retail chains.
-- Integrate with POS, inventory management, and ERP systems.
-- Allow centralized monitoring of multiple locations.
+    - Support deployment across small stores, supermarkets, and retail chains.
+    - Integrate with POS, inventory management, and ERP systems.
+    - Allow centralized monitoring of multiple locations.
