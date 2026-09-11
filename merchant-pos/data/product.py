@@ -4,6 +4,8 @@ from typing import Any, Iterable, Self
 
 class Product:
     def __init__(self, serialized: dict[str, Any]):
+        # TODO: work with UUIDs only as the SSOT?
+        self.backend_id = int(serialized["id"])
         self.uuid = int(serialized["uuid"].replace("-", ""), 16).to_bytes(16)
         self.added = int(serialized["added"])
         self.name: str = serialized["name"]

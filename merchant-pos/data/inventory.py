@@ -1,4 +1,6 @@
 from functools import reduce
+import json
+import requests
 from typing import Any
 
 from .catalog import Catalog
@@ -11,12 +13,17 @@ class Inventory:
         self.selling_prices: dict[Product, int] = {}
         self.quantities: dict[Product, int] = {}
 
-        # XXX: here, there's gonna be a database where we get metrics such as
-        # remaining stock and stuff
-        import random
         for product in self.catalog.products:
-            self.selling_prices[product] = random.randint(product.mrp // 2, product.mrp)
-            self.quantities[product] = random.randint(0, 1000)
+            # TODO: add "product.selling_price" to backend.
+            self.selling_prices[product] = product.mrp
+            response = json.loads(
+                requests.get(
+                    f"{self.catalog.api_url}/products/{product.backend_id}/inventory"
+                ).text
+            )
+            self.quantities[product] = int(
+                response["pos"][self.catalog.pos_id - 1]["available_stock"]
+            )
 
     def to_retailer_status(self, spec_version: int = 1) -> bytes:
         products_data_array = reduce(

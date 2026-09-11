@@ -5,7 +5,9 @@ import json
 import numpy as np
 import os
 import qrcode
+import requests
 import sys
+import optparse
 import threading
 import time
 import zxingcpp
@@ -33,20 +35,30 @@ from data.order import Order
 from data.product import Product
 
 class Window(QMainWindow):
-    def __init__(self):
+    def __init__(self, api_url: str, pos_id: int):
         super().__init__()
-        self.catalog = Catalog(json.load(open("spec/products.json")))
+        self.catalog = Catalog(api_url, pos_id)
         self.inventory = Inventory(self.catalog)
         self.order = Order(self.catalog)
         self.paged_data_retailer_status = PagedData()
         self.paged_data_order_request = PagedData()
 
+        self.qr_page_index = 0
+        self.qr_qimages = []
+        self.generate_retailer_status_qr()
+
+        self.video_feed = cv2.VideoCapture(0)
+        self.order_display_start_time = time.time()
+        threading.Thread(target=self.scan_qr_code_thread, daemon=True).start()
+
+        self.init_ui()
+
+    def generate_retailer_status_qr(self):
         # Reference: https://www.qrcode.com/en/about/version.html
         QR_VERSION = 25
         QR_MAX_BYTES = 1273
 
-        self.qr_page_index = 0
-        self.qr_qimages = []
+        self.qr_qimages.clear()
         for paged_data in self.paged_data_retailer_status.get_data_pages_from_data(
             self.inventory.to_retailer_status(), QR_MAX_BYTES
         ):
@@ -63,12 +75,6 @@ class Window(QMainWindow):
             )
             self.qr_qimages.append(qimg)
 
-        self.video_feed = cv2.VideoCapture(0)
-        self.order_display_start_time: float | None = None
-        threading.Thread(target=self.scan_qr_code_thread, daemon=True).start()
-
-        self.init_ui()
-
     def scan_qr_code_thread(self):
         # Inversion is done so as to compensate for QR codes which are drawn in
         # dark mode.
@@ -76,12 +82,12 @@ class Window(QMainWindow):
 
         while True:
             time.sleep(0.1)
-            if self.order.pending:
-                continue
-
             image = self.video_feed.read()[1]
             if image is None:
                 raise RuntimeError("no camera feed available")
+
+            if self.order.pending:
+                continue
 
             if inverted_qr_code:
                 image_inverted = np.uint8(1.0) - image
@@ -97,6 +103,7 @@ class Window(QMainWindow):
                 decoded[0].bytes
             )
             if data is not None:
+                self.paged_data_order_request.clear()
                 self.order_display_start_time = time.time()
                 self.order.from_order_request(data)
 
@@ -195,11 +202,10 @@ class Window(QMainWindow):
                 self.render_order_summary()
 
             display_duration = 1
-            if self.order_display_start_time is None:
-                return
             if time.time() - self.order_display_start_time > display_duration:
-                self.order_display_start_time = None
-                self.order.pending = False
+                # NOTE: We execute order here. There should be a payment flow.
+                self.order.execute(self.inventory)
+                self.generate_retailer_status_qr()
         else:
             self.summary_container.hide()
             self.qr_label.show()
@@ -209,7 +215,28 @@ class Window(QMainWindow):
                 self.render_qr_code()
 
 if __name__ == "__main__":
+    parser = optparse.OptionParser()
+    parser.add_option(
+        "-e",
+        "--endpoint",
+        dest="api_url",
+        default="http://localhost:8000",
+        help="the API endpoint URL of the backend",
+        metavar="FILE",
+    )
+    parser.add_option(
+        "-p",
+        "--pos-id",
+        dest="pos_id",
+        help="the POS ID to use when communicating with the backend",
+    )
+    options, _ = parser.parse_args()
+
+    if options.pos_id is None:
+        parser.print_help()
+        sys.exit(1)
+
     app = QApplication(sys.argv)
-    window = Window()
+    window = Window(options.api_url, int(options.pos_id))
     window.show()
     sys.exit(app.exec())

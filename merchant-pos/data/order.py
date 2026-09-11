@@ -1,4 +1,6 @@
 from functools import reduce
+import json
+import requests
 from typing import Any
 
 from .catalog import Catalog
@@ -42,8 +44,31 @@ class Order:
 
         self.pending = True
 
-    def execute(self):
-        # XXX: database and transaction voodoo goes here
+    def execute(self, inventory: Inventory):
+        payload = {
+            "pos_id": self.catalog.pos_id,
+            "items": [],
+        }
+        for product in self.ordered_stock:
+            payload["items"].append(
+                {
+                    "product_id": product.backend_id,
+                    "quantity": self.ordered_stock[product],
+                }
+            )
 
-        self.pending = False
+        requests.post(f"{self.catalog.api_url}/orders", json=payload)
+        requests.post(f"{self.catalog.api_url}/inventory/rebalance")
+
+        for product in self.ordered_stock:
+            response = json.loads(
+                requests.get(
+                    f"{self.catalog.api_url}/products/{product.backend_id}/inventory"
+                ).text
+            )
+            inventory.quantities[product] = int(
+                response["pos"][self.catalog.pos_id - 1]["available_stock"]
+            )
+
         self.ordered_stock.clear()
+        self.pending = False
