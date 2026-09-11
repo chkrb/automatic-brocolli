@@ -49,16 +49,25 @@
 
               packages = [
                 git
+                nodejs
+                postgresql
+                vitejs
                 typst
 
                 (callPackage ./packages/kotlin-lsp.nix { })
 
                 (python3.withPackages (
                   py: with py; [
+                    alembic
+                    fastapi
                     opencv4
                     pillow
+                    psycopg
                     pyside6
+                    python-dotenv
                     qrcode
+                    sqlalchemy
+                    uvicorn
                     zxing-cpp
                 ]))
               ];
