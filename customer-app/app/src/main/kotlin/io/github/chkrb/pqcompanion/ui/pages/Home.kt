@@ -1,5 +1,6 @@
 package io.github.chkrb.pqcompanion.ui.pages
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -58,6 +59,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavController
 import io.github.chkrb.pqcompanion.ui.NavDestination
 import kotlin.math.cos
@@ -82,6 +84,13 @@ private val PatternTones = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePage(navController: NavController) {
+    // After the UI was slopped away from material 3 (and thus adopted a light
+    // theme) this has to be added.
+    val window = LocalActivity.current!!.window
+    val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+    windowInsetsController.isAppearanceLightStatusBars = true
+    windowInsetsController.isAppearanceLightNavigationBars = true
+
     Box(modifier = Modifier.fillMaxSize()) {
         // Full-bleed, diagonally drifting pattern of grocery/product icons.
         GroceryPatternBackground(modifier = Modifier.fillMaxSize())

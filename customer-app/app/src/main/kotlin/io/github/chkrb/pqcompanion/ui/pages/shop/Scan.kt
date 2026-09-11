@@ -3,6 +3,7 @@ package io.github.chkrb.pqcompanion.ui.pages.shop
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
@@ -51,8 +53,8 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
-import io.github.chkrb.pqcompanion.presentation.PagedData
 import io.github.chkrb.pqcompanion.data.RetailerStatus
+import io.github.chkrb.pqcompanion.presentation.PagedData
 import io.github.chkrb.pqcompanion.ui.NavDestination
 import io.github.chkrb.pqcompanion.ui.viewmodels.ShopViewModel
 import java.util.concurrent.Executors
@@ -64,6 +66,13 @@ fun ShopScanPage(
     vm: ShopViewModel,
     storeName: String = "POSqueue"
 ) {
+    // After the UI was slopped away from material 3 (and thus adopted a light
+    // theme) this has to be added.
+    val window = LocalActivity.current!!.window
+    val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+    windowInsetsController.isAppearanceLightStatusBars = false
+    windowInsetsController.isAppearanceLightNavigationBars = false
+
     LaunchedEffect(Unit) {
         vm.reset()
     }

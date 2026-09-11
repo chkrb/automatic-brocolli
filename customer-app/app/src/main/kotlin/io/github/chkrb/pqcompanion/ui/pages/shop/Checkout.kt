@@ -1,6 +1,7 @@
 package io.github.chkrb.pqcompanion.ui.pages.shop
 
 import android.graphics.Bitmap
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -43,12 +44,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import io.nayuki.qrcodegen.QrCode
-import io.nayuki.qrcodegen.QrSegment
+import androidx.core.view.WindowCompat
 import io.github.chkrb.pqcompanion.presentation.PagedData
 import io.github.chkrb.pqcompanion.ui.NavDestination
 import io.github.chkrb.pqcompanion.ui.icons.iconArrowBack
 import io.github.chkrb.pqcompanion.ui.viewmodels.ShopViewModel
+import io.nayuki.qrcodegen.QrCode
+import io.nayuki.qrcodegen.QrSegment
 import java.nio.charset.StandardCharsets
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -85,6 +87,13 @@ fun dataToQrBitmap(
 @Composable
 @OptIn(kotlin.ExperimentalUnsignedTypes::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
 fun ShopCheckoutPage(navController: NavController, vm: ShopViewModel) {
+    // After the UI was slopped away from material 3 (and thus adopted a light
+    // theme) this has to be added.
+    val window = LocalActivity.current!!.window
+    val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+    windowInsetsController.isAppearanceLightStatusBars = true
+    windowInsetsController.isAppearanceLightNavigationBars = true
+
     assert(vm.orderRequestData.size > 0)
 
     // QR modules are drawn straight onto the card background, so the code reads

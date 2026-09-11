@@ -1,5 +1,7 @@
 package io.github.chkrb.pqcompanion.ui.pages.shop
 
+import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,49 +10,49 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.runtime.*
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.size
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavController
-import java.text.NumberFormat
-import java.util.Locale
-import io.github.chkrb.pqcompanion.data.RetailerStatusProduct
 import io.github.chkrb.pqcompanion.data.OrderRequest
+import io.github.chkrb.pqcompanion.data.RetailerStatusProduct
 import io.github.chkrb.pqcompanion.ui.NavDestination
-import io.github.chkrb.pqcompanion.ui.viewmodels.ShopViewModel
 import io.github.chkrb.pqcompanion.ui.icons.iconAddShoppingCart
 import io.github.chkrb.pqcompanion.ui.icons.iconArrowBack
 import io.github.chkrb.pqcompanion.ui.icons.iconRemoveShoppingCart
 import io.github.chkrb.pqcompanion.ui.icons.iconShoppingCartCheckout
+import io.github.chkrb.pqcompanion.ui.viewmodels.ShopViewModel
+import java.text.NumberFormat
+import java.util.Locale
 
 // ---- Palette pulled from the home screen (off-white base + terracotta accent) ----
 private val BackgroundOffWhite = Color(0xFFFAF6EC)
@@ -68,6 +70,13 @@ private val StatusAmberText = Color(0xFFB07A2C)
 
 @Composable
 fun ShopExplorePage(navController: NavController, vm: ShopViewModel) {
+    // After the UI was slopped away from material 3 (and thus adopted a light
+    // theme) this has to be added.
+    val window = LocalActivity.current!!.window
+    val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+    windowInsetsController.isAppearanceLightStatusBars = true
+    windowInsetsController.isAppearanceLightNavigationBars = true
+
     if (vm.retailerStatusError) {
         ErrorPage()
         return
