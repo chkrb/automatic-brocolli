@@ -66,6 +66,7 @@
                     pyside6
                     python-dotenv
                     qrcode
+                    requests
                     sqlalchemy
                     uvicorn
                     zxing-cpp
