@@ -201,7 +201,7 @@ class Window(QMainWindow):
                 self.summary_container.show()
                 self.render_order_summary()
 
-            display_duration = 1
+            display_duration = 8
             if time.time() - self.order_display_start_time > display_duration:
                 # NOTE: We execute order here. There should be a payment flow.
                 self.order.execute(self.inventory)
