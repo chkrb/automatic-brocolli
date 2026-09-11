@@ -2,12 +2,14 @@
 
 ## Components
 
+- `backendhehe`: The heart of the operation, managing inventory, orders, etc.
 - `catalog`: Generator of the common global catalog with all products.
 - `customer-app`: Android application used by the customer, to interact with
 the merchant's system and place orders.
 - `doc`: Attempt at documenting the system (behavior, data, etc.) as much as
 possible.
 - `merchant-pos`: The UI software run by the POS terminals of the merchants.
+- `web`: Management interface for merchants.
 
 It is recommended to get started with the [documentation](./doc/README.md) to
 get an idea of what to expect from each compoment.
