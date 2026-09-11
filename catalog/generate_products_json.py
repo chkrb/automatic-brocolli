@@ -40,7 +40,7 @@ for values in csv_reader:
 
 for target in [
     "./products.json",
+    "../backendhehe/products.json",
     "../customer-app/app/src/main/res/raw/products.json",
-    "../merchant-pos/spec/products.json",
 ]:
     json.dump({"version": PRODUCT_VERSION, "products": products}, open(target, "w"))
