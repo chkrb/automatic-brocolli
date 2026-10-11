@@ -1,6 +1,6 @@
 {
   autoPatchelfHook,
-  jetbrains,
+  jdk,
   makeWrapper,
   stdenv,
   stdenvNoCC,
@@ -29,7 +29,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
     mkdir -p $out/{bin,share}
     cp -r bin lib license modules plugins product-info.json $out/share
-    ln -sT "${jetbrains.jdk-no-jcef}"/lib/openjdk $out/share/jbr
+    ln -sT "${jdk}"/lib/openjdk $out/share/jbr
 
     makeWrapper $out/share/bin/intellij-server $out/bin/intellij-server
 

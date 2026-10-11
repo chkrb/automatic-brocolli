@@ -31,49 +31,103 @@
             includeEmulator = false;
             includeNDK = true;
           };
+
+          android-sdk = androidenv.androidsdk;
+          jdk = pkgs.jetbrains.jdk-no-jcef-21;
+          kotlin-lsp = (pkgs.callPackage ./packages/kotlin-lsp.nix { inherit jdk; });
         in
         with pkgs;
-        {
-          default = (
-            mkShellNoCC rec {
-              nativeBuildInputs = [
-                androidenv.androidsdk
-                jetbrains.jdk-no-jcef-21
-              ];
+        rec {
+          default = mkShellNoCC {
+            packages = [
+              git
+              pipx
+            ];
+          };
 
-              ANDROID_HOME = "${androidenv.androidsdk}/libexec/android-sdk";
-              GRADLE_OPTS = ''
-                -Dorg.gradle.configuration-cache=true
-                -Dorg.gradle.project.android.aapt2FromMavenOverride=${ANDROID_HOME}/build-tools/${androidenvBuildToolsVersion}/aapt2
-              '';
+          backend = mkShellNoCC {
+            inputsFrom = [
+              default
+            ];
 
-              packages = [
-                git
-                nodejs
-                postgresql
-                vitejs
-                typst
+            buildInputs = [
+              postgresql
+              (python3.withPackages (
+                py: with py; [
+                  alembic
+                  fastapi
+                  psycopg
+                  python-dotenv
+                  sqlalchemy
+                  uvicorn
+                ]
+              ))
+            ];
+          };
 
-                (callPackage ./packages/kotlin-lsp.nix { })
+          customer-app = mkShellNoCC {
+            inputsFrom = [
+              default
+            ];
 
-                (python3.withPackages (
-                  py: with py; [
-                    alembic
-                    fastapi
-                    opencv4
-                    pillow
-                    psycopg
-                    pyside6
-                    python-dotenv
-                    qrcode
-                    requests
-                    sqlalchemy
-                    uvicorn
-                    zxing-cpp
-                ]))
-              ];
-            }
-          );
+            nativeBuildInputs = [
+              android-sdk
+              jdk
+              kotlin-lsp
+            ];
+
+            ANDROID_HOME = "${androidenv.androidsdk}/libexec/android-sdk";
+            GRADLE_OPTS = ''
+              -Dorg.gradle.configuration-cache=true
+              -Dorg.gradle.project.android.aapt2FromMavenOverride=${ANDROID_HOME}/build-tools/${androidenvBuildToolsVersion}/aapt2
+            '';
+          };
+
+          idea = mkShellNoCC {
+            inputsFrom = [
+              default
+            ];
+
+            buildInputs = [
+              typst
+            ];
+          };
+
+          merchant-pos = mkShellNoCC {
+            buildInputs = [
+              (python3.withPackages (
+                py: with py; [
+                  opencv4
+                  pillow
+                  pyside6
+                  qrcode
+                  requests
+                  zxing-cpp
+                ]
+              ))
+            ];
+          };
+
+          merchant-pos-ng = mkShell {
+            inputsFrom = [
+              default
+            ];
+
+            nativeBuildInputs = [
+              platformio
+            ];
+          };
+
+          web = mkShellNoCC {
+            inputsFrom = [
+              default
+            ];
+
+            buildInputs = [
+              nodejs
+              vitejs
+            ];
+          };
         }
       );
     };
